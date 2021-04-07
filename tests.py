@@ -11,14 +11,13 @@ class BooksTestCase(unittest.TestCase):
 
         self.days_borrowed = 10
 
-
     def test_regular_book_total_rental_charge(self):
         self.book = Book(
             name="Fundamentals of Accounting",
             kind=Book.REGULAR)
 
         charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
-        self.assertEqual(charge, 15)
+        self.assertEqual(charge, 14)
 
     def test_fiction_book_total_rental_charge(self):
         self.customer = Customer(
