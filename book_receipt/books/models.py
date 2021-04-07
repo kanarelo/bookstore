@@ -3,6 +3,7 @@ from django.db import models
 class Customer(models.Model):
     name = models.CharField(max_length=50)
 
+
 class Book(models.Model):
     REGULAR = "regular"
     FICTION = "fiction"
@@ -18,14 +19,22 @@ class Book(models.Model):
 
 
     def get_rental_charge(self, days_borrowed):
+        if days_borrowed == 0:
+            return 0
+
         if self.kind == Book.REGULAR:
             # Regular books for the first 2 days charges 
             # will be $1 per day and $1.5 thereafter
+            min_daily_charge = 1
+            max_daily_charge = 1.5
 
             if days_borrowed > 2:
-                return (2 * 1) + ((days_borrowed - 2) * 1.5)
+                min_charge = (2 * daily_charge)
+                max_charge = ((days_borrowed - 2) * max_daily_charge)
+
+                return (min_charge + max_charge)
             else:
-                return (days_borrowed * 1)
+                return (days_borrowed * min_daily_charge)
 
         elif self.kind == Book.FICTION:
             # Minimum changes will b3 considered as $2 
