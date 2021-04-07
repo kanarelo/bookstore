@@ -18,7 +18,7 @@ class Book(models.Model):
     kind = models.CharField(max_length=10, choices=KINDS)
 
 
-    def get_rental_charge(self, days_borrowed):
+    def get_rental_cost(self, days_borrowed):
         if days_borrowed == 0:
             return 0
 
@@ -40,7 +40,7 @@ class Book(models.Model):
             # Minimum changes will b3 considered as $2 
             # if days rented is less than 2 days.
 
-            max_daily_charge   = 3.0
+            max_daily_charge = 3.0
             min_daily_charge = 2.0
 
             if days_borrowed <= 2:
@@ -52,7 +52,7 @@ class Book(models.Model):
             # Novel minimum charges are introduced as $4.5 
             # if days rented is less than 3 days
 
-            max_daily_charge   = 1.5
+            max_daily_charge = 1.5
             min_daily_charge = 4.5
 
             if days_borrowed <= 3:
@@ -60,4 +60,12 @@ class Book(models.Model):
             else:
                 return (days_borrowed * max_daily_charge)
 
-        
+        return 0
+
+
+class Borrowing(models.Model):
+    book = models.ForeignKey('Book', models.CASCADE)
+    customer = models.ForeignKey('Customer', models.CASCADE)
+
+    date_borrowed = models.DateTimeField()
+    date_returned = models.DateTimeField(null=True)
