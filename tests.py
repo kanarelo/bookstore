@@ -28,7 +28,6 @@ class BooksTestCase(unittest.TestCase):
 
         charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
         self.assertEqual(charge, 30)
-
     
     def test_novel_total_rental_charge(self):
         self.customer = Customer(
