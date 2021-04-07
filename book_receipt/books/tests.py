@@ -1,10 +1,10 @@
-import unittest
+from django.tests import TestCase
 
-from models import Customer, Book
-from utils import calculate_book_rental_charge
+from .models import Customer, Book
+from .utils import calculate_book_rental_charge
 
 
-class BooksTestCase(unittest.TestCase):
+class BooksTestCase(TestCase):
     def setUp(self):
         self.customer = Customer(
             name="Customer #1")
@@ -38,7 +38,3 @@ class BooksTestCase(unittest.TestCase):
 
         charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
         self.assertEqual(charge, 15)
-
-    
-if __name__ == '__main__':
-    unittest.main()

@@ -1,16 +1,20 @@
+from django.db import models
 
-class Customer(object):
-    def __init__(self, name=""):
-        self.name = name
+class Customer(models.Model):
+    name = models.CharField(max_length=50)
 
 class Book(object):
     REGULAR = "regular"
     FICTION = "fiction"
     NOVEL   = "novel"
 
-    def __init__(self, name="", kind=REGULAR):
-        self.name = name
-        self.kind = kind
+    KINDS = (
+        (REGULAR, "Regular"),
+        (FICTION, "Fiction"),
+        (NOVEL, "Novel"))
+    
+    name = models.CharField(max_length=50)
+    kind = models.CharField(max_length=10, choices=KINDS)
 
 
     def get_rental_charge(self, days_borrowed):
