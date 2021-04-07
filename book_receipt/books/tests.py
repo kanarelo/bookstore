@@ -3,7 +3,7 @@ from django.test import TestCase
 from .models import Customer, Book
 
 
-class BooksTestCase(TestCase):
+class RentalStoreTestCase(TestCase):
     def setUp(self):
         self.customer = Customer.objects.create(
             name="Customer #1")
@@ -20,17 +20,17 @@ class BooksTestCase(TestCase):
 
         self.days_borrowed = 10
 
-    def test_regular_book_total_rental_charge(self):
+    def test_regular_book_total_rental_cost(self):
         charge = self.regular_book.get_rental_cost(self.days_borrowed)
 
         self.assertEqual(charge, 14)
 
-    def test_fiction_book_total_rental_charge(self):
+    def test_fiction_book_total_rental_cost(self):
         charge = self.fiction_book.get_rental_cost(self.days_borrowed)
 
         self.assertEqual(charge, 30)
     
-    def test_novel_total_rental_charge(self):
+    def test_novel_total_rental_cost(self):
         charge = self.novel_book.get_rental_cost(self.days_borrowed)
 
         self.assertEqual(charge, 15)
