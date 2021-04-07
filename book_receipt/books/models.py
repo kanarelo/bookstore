@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Customer(models.Model):
     name = models.CharField(max_length=50)
@@ -69,3 +70,36 @@ class Borrowing(models.Model):
 
     date_borrowed = models.DateTimeField()
     date_returned = models.DateTimeField(null=True)
+
+    borrow_charge = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    date_paid  = models.DateTimeField(null=True)
+
+    comments = models.CharField(max_length=150, 
+        null=True, help_text="Comment on status/condition of book")
+
+    @staticmethod
+    def checkout_book(book, customer):
+        borrowing = Borrowing.objects.create(
+            book=book,
+            customer=customer,
+            date_borrowed=timezone.now())
+
+        return borrowing
+    
+    @staticmethod
+    def checkin_book(book, customer, comments):
+        borrowing = Borrowing.objects.get(
+            book=book,
+            customer=customer,
+            date_returned__isnull=True)
+        borrowing.comments = f"{borrowing.comments or ''}\n{comments}"
+        
+        # calculate borrow cost
+        borrowing.date_returned = timezone.now()
+        days_borrowed = (borrowing.date_returned - borrowing.date_borrowed).days
+        borrowing.borrow_charge = book.get_rental_cost(days_borrowed)
+
+        # save to db
+        borrowing.save()
+
+        return borrowing
