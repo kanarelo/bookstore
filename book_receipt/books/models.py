@@ -3,7 +3,7 @@ from django.db import models
 class Customer(models.Model):
     name = models.CharField(max_length=50)
 
-class Book(object):
+class Book(models.Model):
     REGULAR = "regular"
     FICTION = "fiction"
     NOVEL   = "novel"
