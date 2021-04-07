@@ -29,7 +29,7 @@ class Book(models.Model):
             max_daily_charge = 1.5
 
             if days_borrowed > 2:
-                min_charge = (2 * daily_charge)
+                min_charge = (2 * min_daily_charge)
                 max_charge = ((days_borrowed - 2) * max_daily_charge)
 
                 return (min_charge + max_charge)
@@ -40,24 +40,24 @@ class Book(models.Model):
             # Minimum changes will b3 considered as $2 
             # if days rented is less than 2 days.
 
-            daily_charge   = 3.0
-            minimum_charge = 2.0
+            max_daily_charge   = 3.0
+            min_daily_charge = 2.0
 
             if days_borrowed <= 2:
-                return minimum_charge
+                return min_daily_charge
             else:
-                return (days_borrowed * daily_charge)
+                return (days_borrowed * max_daily_charge)
 
         elif self.kind == Book.NOVEL:
             # Novel minimum charges are introduced as $4.5 
             # if days rented is less than 3 days
 
-            daily_charge   = 1.5
-            minimum_charge = 4.5
+            max_daily_charge   = 1.5
+            min_daily_charge = 4.5
 
             if days_borrowed <= 3:
-                return minimum_charge
+                return min_daily_charge
             else:
-                return (days_borrowed * daily_charge)
+                return (days_borrowed * max_daily_charge)
 
         
