@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 class Customer(models.Model):
@@ -79,27 +79,29 @@ class Borrowing(models.Model):
 
     @staticmethod
     def checkout_book(book, customer):
-        borrowing = Borrowing.objects.create(
-            book=book,
-            customer=customer,
-            date_borrowed=timezone.now())
+        with transaction.atomic():
+            borrowing = Borrowing.objects.create(
+                book=book,
+                customer=customer,
+                date_borrowed=timezone.now())
 
-        return borrowing
+            return borrowing
     
     @staticmethod
     def checkin_book(book, customer, comments):
-        borrowing = Borrowing.objects.get(
-            book=book,
-            customer=customer,
-            date_returned__isnull=True)
-        borrowing.comments = f"{borrowing.comments or ''}\n{comments}"
-        
-        # calculate borrow cost
-        borrowing.date_returned = timezone.now()
-        days_borrowed = (borrowing.date_returned - borrowing.date_borrowed).days
-        borrowing.borrow_charge = book.get_rental_cost(days_borrowed)
+        with transaction.atomic():
+            borrowing = Borrowing.objects.get(
+                book=book,
+                customer=customer,
+                date_returned__isnull=True)
+            borrowing.comments = f"{borrowing.comments or ''}\n{comments}"
+            
+            # calculate borrow cost
+            borrowing.date_returned = timezone.now()
+            days_borrowed = (borrowing.date_returned - borrowing.date_borrowed).days
+            borrowing.borrow_charge = book.get_rental_cost(days_borrowed)
 
-        # save to db
-        borrowing.save()
+            # save to db
+            borrowing.save()
 
-        return borrowing
+            return borrowing
