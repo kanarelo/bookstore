@@ -1,8 +1,10 @@
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 
+from django.views.decorators.http import require_POST
+
 from .forms import BookForm
-from .models import Book
+from .models import Book, Borrowing
 
 def books(request, book_id=None):
     context = {}
@@ -41,3 +43,15 @@ def books(request, book_id=None):
             template_name = 'book_view.html'
             return render(request, template_name, context)
 
+
+@require_POST
+def borrow_checkout(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    borrowing = Borrowing.checkout_book(book, customer)
+
+@require_POST
+def borrow_checkin(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    borrowing = Borrowing.checkin_book(book, customer)
