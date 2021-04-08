@@ -6,22 +6,28 @@ from django.views.decorators.http import require_POST
 from .forms import BookForm
 from .models import Book, Borrowing
 
-def books(request, book_id=None):
+
+def books(request, book_id=None, create=False):
     context = {}
 
     if request.method == "GET":
-        if book_id is not None:
-            book = get_object_or_404(Book, id=book_id)
+        if create:
+            form = BookForm()
+            context['form'] = form
 
-            context['book'] = book
-            template_name = 'book_view.html'
+            template_name = 'book_form.html'
         else:
-            books = Book.objects.all()
+            if book_id is not None:
+                book = get_object_or_404(Book, id=book_id)
 
-            context['books'] = books
-            template_name = 'book_list.html'
+                context['book'] = book
 
-        return render(request, template_name, context)
+                template_name = 'book_view.html'
+            else:
+                books = Book.objects.all()
+
+                context['books'] = books
+                template_name = 'book_list.html'
 
     elif request.method == "POST":
         if book_id is not None:
@@ -38,10 +44,12 @@ def books(request, book_id=None):
 
             book.save()
 
-            return redirect(reverse('view_book', kwargs={'book_id': book.pk}))
+            return redirect(reverse('list_books'))
         else:
-            template_name = 'book_view.html'
-            return render(request, template_name, context)
+            template_name = 'book_form.html'
+            context['form'] = form
+            
+    return render(request, template_name, context)
 
 
 @require_POST

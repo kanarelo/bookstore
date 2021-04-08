@@ -19,6 +19,9 @@ class Book(models.Model):
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=10, choices=KINDS)
 
+    @property
+    def title(self):
+        return self.name
 
     def get_rental_cost(self, days_borrowed):
         if days_borrowed == 0:

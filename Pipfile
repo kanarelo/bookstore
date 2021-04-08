@@ -8,6 +8,7 @@ pylint = "*"
 
 [packages]
 django = "*"
+django-bootstrap-v5 = "*"
 
 [requires]
-python_version = "3.9.4"
+python_version = "3.9"
