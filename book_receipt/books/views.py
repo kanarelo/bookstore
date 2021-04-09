@@ -1,33 +1,27 @@
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from .forms import BookForm
 from .models import Book, Borrowing
 
 
+def index(request):
+    return redirect(reverse('library'))
+
+
 def books(request, book_id=None, create=False):
-    context = {}
+    response = {}
 
     if request.method == "GET":
-        form = BookForm()
-        context['form'] = form
-
-        if create:
-            template_name = 'book_form.html'
+        if book_id is not None:
+            book = get_object_or_404(Book, id=book_id)
+            response['book'] = book.as_dict()
         else:
-            if book_id is not None:
-                book = get_object_or_404(Book, id=book_id)
-
-                context['book'] = book
-
-                template_name = 'book_view.html'
-            else:
-                books = Book.objects.all()
-
-                context['books'] = books
-                template_name = 'book_list.html'
+            books = Book.objects.all()
+            response['books'] = list(b.as_dict() for b in books)
 
     elif request.method == "POST":
         if book_id is not None:
@@ -43,13 +37,14 @@ def books(request, book_id=None, create=False):
             book.kind = data.get('kind')
 
             book.save()
-
-            return redirect(reverse('list_books'))
+            response['book'] = book.as_dict()
         else:
-            template_name = 'book_form.html'
-            context['form'] = form
+            response['errors'] = form.errors
             
-    return render(request, template_name, context)
+    return JsonResponse({
+        'success': success,
+        'response': response
+    })
 
 
 @require_POST
@@ -57,6 +52,7 @@ def borrow_checkout(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
     borrowing = Borrowing.checkout_book(book, customer)
+
 
 @require_POST
 def borrow_checkin(request, book_id):

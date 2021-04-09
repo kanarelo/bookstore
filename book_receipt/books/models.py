@@ -23,6 +23,12 @@ class Book(models.Model):
     def title(self):
         return self.name
 
+    def as_dict(self):
+        return {
+            'title': self.title,
+            'kind': self.get_kind_display()
+        }
+
     def get_rental_cost(self, days_borrowed):
         if days_borrowed == 0:
             return 0
@@ -86,6 +92,18 @@ class Borrowing(models.Model):
 
     comments = models.CharField(max_length=150, 
         null=True, help_text="Comment on status/condition of book")
+
+    def as_dict(self):
+        return {
+            'book_id': self.book.id,
+            'customer_id': self.customer.id,
+            'date_borrowed': self.date_borrowed.isoformat() if self.date_borrowed else None,
+            'date_returned': self.date_returned.isoformat() if self.date_returned else None,
+            'currency': 'USD $',
+            'borrow_charge': self.borrow_charge,
+            'date_paid': self.date_paid.isoformat() if self.date_paid else None,
+            'comments': self.comments
+        }
 
     @staticmethod
     def checkout_book(book, customer):
