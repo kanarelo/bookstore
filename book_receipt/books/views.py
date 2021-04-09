@@ -11,10 +11,10 @@ def books(request, book_id=None, create=False):
     context = {}
 
     if request.method == "GET":
-        if create:
-            form = BookForm()
-            context['form'] = form
+        form = BookForm()
+        context['form'] = form
 
+        if create:
             template_name = 'book_form.html'
         else:
             if book_id is not None:
