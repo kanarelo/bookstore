@@ -1,5 +1,52 @@
+
 body{
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Source Sans Pro', sans-serif;
     background-color: #F3F2F7;
+    font-size: 0.90rem;
+    color: rgba(67, 66, 72) !important;
+}
+.form-control, .form-select {
+    font-size: 0.90rem;
 }
 
+.book-card {
+    border: 15px solid #ffffff;
+}
+.book-card .book-cover {
+    max-height: 210px;
+}
+.book-list .book-cover {
+    max-height: 50px;
+}
+.book-list .book-list-item td {
+}
+.book-card .book-title {
+    font-size: 85%;
+    font-weight: 600;
+    color: rgba(67, 66, 72, 50%);
+    text-transform: uppercase;
+}
+.book-card .book-author {
+    font-weight: 600;
+    font-size: 120%;
+    color: rgba(67, 66, 72);
+}
+.book-rating i {
+    color: #dbb027;
+}
+.book-rating {
+    color: #9b9b9b;
+}
+
+.featured-books .nav-link {
+    color: rgba(67, 66, 72, 60%);
+    font-weight: 600;
+}
+.featured-books .nav-link.active {
+    color: rgba(67, 66, 72);
+}
+
+.book-list .header-column {
+    border: none;
+    color: rgba(67, 66, 72, 60%);
+}

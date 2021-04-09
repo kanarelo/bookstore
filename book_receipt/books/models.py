@@ -19,6 +19,38 @@ class Book(models.Model):
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=10, choices=KINDS)
 
+    #meta
+    cover = models.ImageField(upload_to='books/covers', null=True)
+    author = models.CharField(max_length=100, null=True)
+
+    featured = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.title
+
+    @property
+    def rating(self):
+        borrowings = self.borrowings.all()
+
+        if borrowings.count() > 0:
+            return sum(
+                b.rating for b in borrowings
+            ) / borrowings.count()
+        
+        return 0
+
+    @property
+    def rating_icons(self):
+        icons = []
+
+        for i in range(int(self.rating)):
+            icons.append('full')
+
+        if self.rating > 0 and not rating.is_integer():
+            icons.append('half')
+
+        return icons
+
     @property
     def title(self):
         return self.name
@@ -81,8 +113,10 @@ class Book(models.Model):
 
 
 class Borrowing(models.Model):
-    book = models.ForeignKey('Book', models.CASCADE)
+    book = models.ForeignKey('Book', models.CASCADE, related_name="borrowings")
     customer = models.ForeignKey('Customer', models.CASCADE)
+
+    rating = models.DecimalField(max_digits=4, decimal_places=2, null=True)
 
     date_borrowed = models.DateTimeField()
     date_returned = models.DateTimeField(null=True)

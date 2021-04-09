@@ -5,8 +5,8 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     
-    path('library/', views.index, name='library'),
-    path('rentals/', views.index, name='rentals'),
+    path('library/', views.library, name='library'),
+    path('rentals/', views.rentals, name='rentals'),
 
     # crud
     path('books/', views.books, name='list_books'),
