@@ -8,16 +8,16 @@ class BookRating extends React.Component {
         var stars;
         var book = this.props.book;
 
-        if (book.rating_icons.length == 0) {
+        if (book.rating_icons !== undefined && book.rating_icons.length == 0) {
             stars = (<i className="bi-star border-0"></i>);
         } else {
             stars = book.rating_icons.map(
                 function(value, index) {
                     if (value === 'full') {
-                        return (<i className="bi-star-fill border-0"></i>);
+                        return (<i key={index} className="bi-star-fill border-0"></i>);
                     }
                     else if (value == 'half') {
-                        return (<i className="bi-star-half border-0"></i>);
+                        return (<i key={index} className="bi-star-half border-0"></i>);
                     }
                 }
             );
@@ -43,7 +43,7 @@ class BookCard extends React.Component {
         return (
             <div className="col">
                 <div className="card book-card shadow-sm">
-                    <img src="{ book.cover.url }" className="card-img-top book-cover" />
+                    <img src={ book.cover } className="card-img-top book-cover" />
                     <div className="card-body px-0 py-0">
                         <p className="card-title book-title mt-3 mb-1">{ book.title }</p>
                         <p className="card-text book-author mt-0 py-0">{ book.author }</p>
@@ -91,8 +91,8 @@ class FeaturedBooks extends React.Component {
                         <a className={"nav-link" + (this.state.selected_link == 'latestAdded' ? ' active' : '')} onClick={onLastAddedClick.bind(this)}>Latest added</a>
                     </li>
                 </ul>
-                {books.map(function(book, index){
-                    <BookCard book={book}/>
+                {books.map(function(book, index) {
+                    return <BookCard key={index} book={book}/>;
                 })}
             </div>
         )
@@ -136,11 +136,13 @@ class BookListItem extends React.Component {
     }
 
     render () {
+        var book = this.props.book;
+        
         return (
             <div className="book-list-item d-flex flex-row bg-white p-3 my-3 shadow-sm">
                 <div className="d-flex flex-row w-50">
                     <div className="">
-                        <img src={book.cover.url} className="book-cover img-fluid" />
+                        <img src={book.cover} className="book-cover img-fluid" />
                     </div>
                     <div className="d-flex flex-column mx-3 p-1 flex-fill">
                         <div className="book-title">
@@ -183,7 +185,7 @@ class BookList extends React.Component {
                     <div className="header-column w-25">Status</div>
                 </div>
                 {this.props.books.map(function(book, index){
-                    <BookListItem book={book} />
+                    return <BookListItem key={index} book={book} />;
                 })}
             </div>
         )

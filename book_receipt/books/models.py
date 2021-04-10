@@ -65,7 +65,8 @@ class Book(models.Model):
         return {
             'title': self.title,
             'kind': self.get_kind_display(),
-            'internal_rating': self.internal_rating,
+            'rating': self.internal_rating or self.rating or 0,
+            'rating_icons': self.rating_icons,
             'cover': self.cover.url,
             'author': self.author,
             'featured': self.featured,
