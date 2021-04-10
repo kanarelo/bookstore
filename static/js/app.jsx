@@ -3,7 +3,7 @@ class BookRating extends React.Component {
         super(props);
         this.state = {};
     }
-    
+
     render () {
         var stars;
 
@@ -54,21 +54,43 @@ class BookCard extends React.Component {
 class FeaturedBooks extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            selected_link: 'recommended',
+            books: [],
+            recommended_books: [],
+            latest_books: []
+        };
     }
 
     render () {
+        var onRecommendedClick = function(e) {
+            e.preventDefault();
+
+            this.setState({
+                'selected_link': 'recommended',
+                'books': this.state.recommended_books
+            });
+        }
+        var onLastAddedClick = function(e) {
+            e.preventDefault();
+
+            this.setState({
+                'selected_link': 'latestAdded',
+                'books': this.state.latest_books
+            });
+        }
+
         return (
             <div className="row gx-3">
                 <ul className="nav featured-books py-3">
                     <li className="nav-item">
-                    <a className="nav-link active" aria-current="page" href="#">Recommended</a>
+                        <a className={"nav-link" + (this.state.selected_link == 'recommended' ? ' active' : '')} onClick={onRecommendedClick.bind(this)} aria-current="page">Recommended</a>
                     </li>
                     <li className="nav-item">
-                    <a className="nav-link" href="#">Last added</a>
+                        <a className={"nav-link" + (this.state.selected_link == 'latestAdded' ? ' active' : '')} onClick={onLastAddedClick.bind(this)}>Latest added</a>
                     </li>
                 </ul>
-                {this.props.recommended_books.map(function(book, index){
+                {this.state.books.map(function(book, index){
                     <BookCard book={book}/>
                 })}
             </div>
@@ -95,7 +117,7 @@ class BookSearch extends React.Component {
                 </div>
                 <div className="col-2">
                     <select className="form-select border-0 shadow" aria-label="Book kind">
-                        <option selected>Kind</option>
+                        <option>Kind</option>
                         <option value="regular">Regular</option>
                         <option value="fiction">Fiction</option>
                         <option value="novel">Novel</option>
@@ -106,7 +128,7 @@ class BookSearch extends React.Component {
     }
 }
 
-class BookListItem  extends React.Component {
+class BookListItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
@@ -191,12 +213,23 @@ class Books extends React.Component {
 }
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            recommended_books: [],
+            latest_books: [],
+            all_books: []
+        };
+    }
+
     render() {
         return (
             <div className="container py-4">
                 <BookSearch />
-                <FeaturedBooks />
-                <Books />
+                <FeaturedBooks 
+                    recommended_books={this.state.recommended_books} 
+                    latest_books={this.state.latest_books} />
+                <Books books={this.state.all_books}/>
             </div>
         )
     }
