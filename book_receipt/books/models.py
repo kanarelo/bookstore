@@ -64,7 +64,13 @@ class Book(models.Model):
     def as_dict(self):
         return {
             'title': self.title,
-            'kind': self.get_kind_display()
+            'kind': self.get_kind_display(),
+            'internal_rating': self.internal_rating,
+            'cover': self.cover.url,
+            'author': self.author,
+            'featured': self.featured,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
     def get_rental_cost(self, days_borrowed):

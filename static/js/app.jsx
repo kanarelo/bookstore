@@ -6,6 +6,7 @@ class BookRating extends React.Component {
 
     render () {
         var stars;
+        var book = this.props.book;
 
         if (book.rating_icons.length == 0) {
             stars = (<i className="bi-star border-0"></i>);
@@ -37,6 +38,8 @@ class BookCard extends React.Component {
     }
 
     render () {
+        var book = this.props.book;
+
         return (
             <div className="col">
                 <div className="card book-card shadow-sm">
@@ -56,9 +59,7 @@ class FeaturedBooks extends React.Component {
         super(props);
         this.state = {
             selected_link: 'recommended',
-            books: [],
-            recommended_books: [],
-            latest_books: []
+            books: []
         };
     }
 
@@ -66,19 +67,19 @@ class FeaturedBooks extends React.Component {
         var onRecommendedClick = function(e) {
             e.preventDefault();
 
-            this.setState({
-                'selected_link': 'recommended',
-                'books': this.state.recommended_books
-            });
+            this.setState({ 'selected_link': 'recommended' });
         }
         var onLastAddedClick = function(e) {
             e.preventDefault();
 
-            this.setState({
-                'selected_link': 'latestAdded',
-                'books': this.state.latest_books
-            });
+            this.setState({ 'selected_link': 'latestAdded' });
         }
+
+        var books = (
+            this.state.selected_link === 'recommended' ? 
+                this.props.recommended_books : 
+                this.props.latest_books
+            );
 
         return (
             <div className="row gx-3">
@@ -90,7 +91,7 @@ class FeaturedBooks extends React.Component {
                         <a className={"nav-link" + (this.state.selected_link == 'latestAdded' ? ' active' : '')} onClick={onLastAddedClick.bind(this)}>Latest added</a>
                     </li>
                 </ul>
-                {this.state.books.map(function(book, index){
+                {books.map(function(book, index){
                     <BookCard book={book}/>
                 })}
             </div>
@@ -235,11 +236,11 @@ class App extends React.Component {
                     loadingData: false
                 })
             }
-        }.bind(this);
+        }
 
         axios
             .get('/library.json')
-            .then(handleData)
+            .then(handleData.bind(this))
             .catch(function (error) {
                 console.log(error);
             });
