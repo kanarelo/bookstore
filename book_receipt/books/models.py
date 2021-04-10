@@ -19,6 +19,8 @@ class Book(models.Model):
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=10, choices=KINDS)
 
+    internal_rating = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+
     #meta
     cover = models.ImageField(upload_to='books/covers', null=True)
     author = models.CharField(max_length=100, null=True)
@@ -42,11 +44,12 @@ class Book(models.Model):
     @property
     def rating_icons(self):
         icons = []
+        rating = self.internal_rating or self.rating or 0
 
-        for i in range(int(self.rating)):
+        for i in range(int(rating)):
             icons.append('full')
 
-        if self.rating > 0 and not rating.is_integer():
+        if rating > 0 and not float(rating).is_integer():
             icons.append('half')
 
         return icons

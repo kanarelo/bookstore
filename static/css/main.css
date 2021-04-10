@@ -10,15 +10,21 @@ body{
 }
 
 .book-card {
-    border: 15px solid #ffffff;
+    border: 12.5px solid #ffffff;
 }
 .book-card .book-cover {
     max-height: 210px;
 }
 .book-list .book-cover {
-    max-height: 50px;
+    max-height: 55px;
 }
-.book-list .book-list-item td {
+.book-list .book-author {
+    color: rgba(67, 66, 72);
+    font-weight: 600;
+}
+.book-list .book-title {
+    color: rgba(67, 66, 72, 60%);
+    font-weight: 600;
 }
 .book-card .book-title {
     font-size: 85%;
@@ -47,6 +53,27 @@ body{
 }
 
 .book-list .header-column {
-    border: none;
     color: rgba(67, 66, 72, 60%);
+}
+
+.w-10 {
+    width: 10% !important;
+}
+.w-15 {
+    width: 15% !important;
+}
+.w-40 {
+    width: 40% !important;
+}
+.w-30 {
+    width: 30% !important;
+}
+
+.book-card:hover, 
+.book-list-item:hover {
+    cursor: pointer;
+}
+
+.book-list .badge {
+    font-size: .85rem;
 }
