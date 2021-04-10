@@ -31,29 +31,39 @@ class BookRating extends React.Component {
     }
 }
 
+
 class BookCard extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            hovered: false
+        };
+    }
+
+    onMouseOver() {
+        this.setState({ 'hovered': true });
+    }
+    onMouseOut() {
+        this.setState({ 'hovered': false });
     }
 
     render () {
         var book = this.props.book;
 
         return (
-            <div className="col">
-                <div className="card book-card shadow-sm">
-                    <img src={ book.cover } className="card-img-top book-cover" />
-                    <div className="card-body px-0 py-0">
-                        <p className="card-title book-title mt-3 mb-1">{ book.title }</p>
-                        <p className="card-text book-author mt-0 py-0">{ book.author }</p>
-                        <BookRating book={book} />
-                    </div>
+            <div className={"card book-card " + (this.state.hovered ? "shadow" : "shadow-sm")} onMouseOver={this.onMouseOver.bind(this)} onMouseOut={this.onMouseOut.bind(this)}>
+                <img src={ book.cover } className="card-img-top book-cover" />
+                <div className="card-body px-0 py-0">
+                    <p className="card-title book-title mt-3 mb-1">{ book.title }</p>
+                    <p className="card-text book-author mt-0 py-0">{ book.author }</p>
+                    <BookRating book={book} />
                 </div>
             </div>
         )
     }
 }
+
+
 class FeaturedBooks extends React.Component {
     constructor(props) {
         super(props);
@@ -85,14 +95,18 @@ class FeaturedBooks extends React.Component {
             <div className="row gx-3">
                 <ul className="nav featured-books py-3">
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.selected_link == 'recommended' ? ' active' : '')} onClick={onRecommendedClick.bind(this)} aria-current="page">Recommended</a>
+                        <a href="" className={"nav-link" + (this.state.selected_link == 'recommended' ? ' active' : '')} onClick={onRecommendedClick.bind(this)} aria-current="page">Recommended</a>
                     </li>
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.selected_link == 'latestAdded' ? ' active' : '')} onClick={onLastAddedClick.bind(this)}>Latest added</a>
+                        <a href="" className={"nav-link" + (this.state.selected_link == 'latestAdded' ? ' active' : '')} onClick={onLastAddedClick.bind(this)}>Latest added</a>
                     </li>
                 </ul>
                 {books.map(function(book, index) {
-                    return <BookCard key={index} book={book}/>;
+                    return (
+                        <div className="col" key={index}>
+                            <BookCard book={book}/>
+                        </div>
+                    )
                 })}
             </div>
         )
@@ -102,7 +116,24 @@ class FeaturedBooks extends React.Component {
 class BookSearch extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            'search_text': '',
+            'kind': ''
+        };
+
+        this.selectKindRef = React.createRef();
+        this.searchInputRef = React.createRef();
+    }
+
+    searchFilter (e) {
+        e.preventDefault();
+        var data = {
+            'search_text': this.searchInputRef.current.value,
+            'kind': this.selectKindRef.current.value
+        }
+
+        this.setState(data);
+        this.props.searchFilter(data);
     }
 
     render () {
@@ -110,15 +141,15 @@ class BookSearch extends React.Component {
             <div className="row justify-content-center py-4 px-3">
                 <div className="col-4">
                     <div className="input-group mb-3 shadow">
-                        <input type="text" className="form-control border-0" placeholder="Type book title or author" aria-label="Type book title or author" aria-describedby="basic-addon1" />
+                        <input ref={this.searchInputRef} value={this.state.search_text} type="text" onChange={this.searchFilter.bind(this)} className="form-control border-0" placeholder="Type book title or author" aria-label="Type book title or author" aria-describedby="basic-addon1" />
                         <span className="input-group-text border-0 bg-white" id="basic-addon1">
                             <i className="bi-search"></i>
                         </span>
                     </div>
                 </div>
                 <div className="col-2">
-                    <select className="form-select border-0 shadow" aria-label="Book kind">
-                        <option>Kind</option>
+                    <select ref={this.selectKindRef} className="form-select border-0 shadow" aria-label="Book kind" onChange={this.searchFilter.bind(this)}>
+                        <option value=''>Kind</option>
                         <option value="regular">Regular</option>
                         <option value="fiction">Fiction</option>
                         <option value="novel">Novel</option>
@@ -137,7 +168,7 @@ class BookListItem extends React.Component {
 
     render () {
         var book = this.props.book;
-        
+
         return (
             <div className="book-list-item d-flex flex-row bg-white p-3 my-3 shadow-sm">
                 <div className="d-flex flex-row w-50">
@@ -222,7 +253,11 @@ class App extends React.Component {
             recommended_books: [],
             latest_books: [],
             all_books: [],
-            loadingData: true
+            loadingData: true,
+            search_terms: {
+                'search_text': '',
+                'kind': ''
+            }
         };
     }
 
@@ -248,15 +283,48 @@ class App extends React.Component {
             });
     }
 
+    searchFilter(search_terms) {
+        this.setState({ 'search_terms': search_terms });
+    }
+
+    filterBooks(book) {
+        if (this.state.search_terms.search_text || this.state.search_terms.kind) {
+            var name_matches = false;
+            var author_matches = false;
+            var book_is_of_kind = null;
+
+            if (this.state.search_terms.search_text !== "") {
+                var bookTitle = book.title.toUpperCase();
+                var bookAuthor = book.author.toUpperCase();
+                var searchText = this.state.search_terms.search_text.toUpperCase();
+
+                name_matches = bookTitle.includes(searchText);
+                author_matches = bookAuthor.includes(searchText);
+            }
+
+            if (this.state.search_terms.kind !== "") {
+                book_is_of_kind = book.kind.toUpperCase() === this.state.search_terms.kind.toUpperCase();
+            }
+
+            if (book_is_of_kind == null) {
+                return (name_matches || author_matches);
+            } else {
+                return (name_matches || author_matches) && book_is_of_kind;
+            }
+        }
+
+        return true;
+    }
+
     render() {
         return (
             <div className="container py-4">
                 <div className={this.state.loadingData ? 'd-none': ''}>
-                    <BookSearch />
+                    <BookSearch searchFilter={this.searchFilter.bind(this)}/>
                     <FeaturedBooks 
-                        recommended_books={this.state.recommended_books} 
-                        latest_books={this.state.latest_books} />
-                    <Books books={this.state.all_books}/>
+                        recommended_books={this.state.recommended_books.filter(this.filterBooks.bind(this))} 
+                        latest_books={this.state.latest_books.filter(this.filterBooks.bind(this))} />
+                    <Books books={this.state.all_books.filter(this.filterBooks.bind(this))} />
                 </div>
                 <div className={'d-block position-fixed top-50 start-50 ' + (!this.state.loadingData ? ' d-none': '')}>
                     <div className="row align-items-center justify-content-center">
