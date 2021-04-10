@@ -242,7 +242,7 @@ class App extends React.Component {
             .then(handleData)
             .catch(function (error) {
                 console.log(error);
-            })
+            });
     }
 
     render() {
