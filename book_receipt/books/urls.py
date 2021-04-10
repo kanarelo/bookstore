@@ -6,6 +6,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     
     path('library/', views.library, name='library'),
+    path('library.json', views.library_data, name='library'),
+
     path('rentals/', views.rentals, name='rentals'),
 
     # crud

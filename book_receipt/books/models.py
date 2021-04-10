@@ -26,6 +26,9 @@ class Book(models.Model):
     author = models.CharField(max_length=100, null=True)
 
     featured = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
     
     def __str__(self):
         return self.title

@@ -66,16 +66,38 @@ def borrow_checkin(request, book_id):
     borrowing = Borrowing.checkin_book(book, customer)
 
 
+def library_data(request):
+    all_books = Book.objects.all()
+
+    recommended_books = all_books\
+        .filter(featured=True)\
+        .order_by('?')[:7] #shuffle books
+
+    latest_books = all_books\
+        .filter(featured=True)\
+        .order_by('-created_at')[:7]
+
+    return JsonResponse({
+        'success': True,
+        'response': {
+            'all_books': [
+                b.as_dict() for b in all_books
+            ],
+            'latest_books': [
+                b.as_dict() for b in latest_books
+            ],
+            'recommended_books': [
+                b.as_dict() for b in recommended_books
+            ]
+        }
+    })
+
 def library(request):
     recommended_books = Book.objects\
         .filter(featured=True)\
         .order_by('?')[:7] #shuffle books
 
-    return render(request, "library.html", {
-        'form': BookForm(),
-        'recommended_books': recommended_books,
-        'books': recommended_books
-    })
+    return render(request, "library.html")
 
 
 def rentals(request):

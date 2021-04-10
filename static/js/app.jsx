@@ -218,18 +218,53 @@ class App extends React.Component {
         this.state = {
             recommended_books: [],
             latest_books: [],
-            all_books: []
+            all_books: [],
+            loadingData: true
         };
+    }
+
+    componentDidMount() {
+        var handleData = function (response) {
+            if (response.data !== undefined && response.data.success) {
+                var data = response.data.response;
+
+                this.setState({
+                    recommended_books: data.recommended_books,
+                    latest_books: data.latest_books,
+                    all_books: data.all_books,
+                    loadingData: false
+                })
+            }
+        }.bind(this);
+
+        axios
+            .get('/library.json')
+            .then(handleData)
+            .catch(function (error) {
+                console.log(error);
+            })
     }
 
     render() {
         return (
             <div className="container py-4">
-                <BookSearch />
-                <FeaturedBooks 
-                    recommended_books={this.state.recommended_books} 
-                    latest_books={this.state.latest_books} />
-                <Books books={this.state.all_books}/>
+                <div className={this.state.loadingData ? 'd-none': ''}>
+                    <BookSearch />
+                    <FeaturedBooks 
+                        recommended_books={this.state.recommended_books} 
+                        latest_books={this.state.latest_books} />
+                    <Books books={this.state.all_books}/>
+                </div>
+                <div className={'d-block position-fixed top-50 start-50 ' + (!this.state.loadingData ? ' d-none': '')}>
+                    <div className="row align-items-center justify-content-center">
+                        <div className="spinner-border text-success" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <div className="text-center mt-3">
+                            Loading Books...
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }
