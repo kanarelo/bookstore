@@ -12,35 +12,29 @@ class RentalStoreWebAppTestCase(TestCase):
         response = self.client.get(reverse('list_books'))
         
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.dumps(response.content), json.dumps({'success': True, "response": {"books": []}}))
+        self.assertEqual(json.loads(response.content), ({'success': True, "response": {"books": []}}))
 
     def test_list_views_returns_list_and_200_ok_when_populated(self):
+        self.maxDiff = None
+
         book1 = Book.objects.create(name="Fundamentals of Accounting", kind=Book.REGULAR)
         book2 = Book.objects.create(name="Wolf Hall", kind=Book.FICTION)
         book3 = Book.objects.create(name="Lord of Flies", kind=Book.NOVEL)
 
         response = self.client.get(reverse('list_books'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.response, json.dumps({
+        self.assertEqual(json.loads(response.content), ({
             "success": True,
             "response": [book1.as_dict(), book2.as_dict(), book3.as_dict()]
         }))
 
     def test_list_views_returns_book_and_200_ok_when_populated(self):
+        self.maxDiff = None
         book = Book.objects.create(name="Fundamentals of Accounting", kind=Book.REGULAR)
         
         response = self.client.get(reverse('view_book', kwargs={'book_id': book.pk}))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, book)
-
-    def test_post_book_redirects_when_populated(self):
-        response = self.client.post(reverse('create_book'), {
-            'name': 'Fundamentals of Accounting',
-            'kind': Book.REGULAR
-        })
-        
-        book = Book.objects.get()
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(json.loads(response.content), book.as_dict())
 
 
 class RentalStoreTestCase(TestCase):
