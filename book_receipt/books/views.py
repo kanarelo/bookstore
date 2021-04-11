@@ -55,6 +55,19 @@ def books(request, book_id=None, create=False):
     }, status=status)
 
 
+def borrow_status(request, book_id):
+    response = {}
+    success = False
+    status = 200
+
+    borrowing = get_object_or_404(Borrowing, book__id=book_id)
+
+    return JsonResponse({
+        'success': success,
+        'borrowing': borrowing.as_dict()
+    }, status=status)
+
+
 @csrf_exempt
 @require_POST
 def borrow_checkout(request, book_id):
@@ -65,6 +78,7 @@ def borrow_checkout(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
     if not book.available:
+        status = 400
         response['message'] = 'Cannot check out Book. The Book has already been borrowed'
     else:
         form = CustomerForm(request.POST)

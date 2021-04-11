@@ -73,13 +73,18 @@ class BookCard extends React.Component {
         var content = (
             <React.Fragment>
                 <img src={ book.cover } className="card-img-top book-cover" />
-                <div className="card-body px-0 py-0">
+                <div className="card-body p-0">
                     <p className="card-title book-title mt-3 mb-1">{ book.title }</p>
-                    <p className="card-text book-author mt-0 py-0">{ book.author }</p>
+                    <p className="card-text book-author m-0 py-0">{ book.author }</p>
                     {this.props.showRating === true ? (
                         <BookRating book={book} />
                     ): (
                         <div/>
+                    )}
+                    {book.available ? (
+                        <p className="badge bg-success my-1">Available</p>
+                    ): (
+                        <p className="badge bg-danger my-1">Borrowed</p>
                     )}
                 </div>
             </React.Fragment>
@@ -251,6 +256,7 @@ class ViewBookModal extends React.Component {
                         <div className="modal-footer">
                             <button type="button" className="btn btn-light" data-bs-dismiss="modal">Close</button>
                             <button type="button" 
+                                disabled={!book.available}
                                 className="btn btn-warning" 
                                 data-bs-dismiss="modal" 
                                 data-bs-toggle="modal" 
@@ -273,7 +279,9 @@ class BookCheckoutModal extends React.Component {
             loading: false,
             email: '',
             name: '',
-            borrowing: null
+            borrowing: null,
+            error_message: '',
+            error: false
         };
     }
 
@@ -295,6 +303,15 @@ class BookCheckoutModal extends React.Component {
                     })
                 }
             }
+            var handleError = function (error) {
+                console.log(error);
+
+                this.setState({
+                    'loading': false,
+                    'error': true,
+                    'error_message': error.response.data.message
+                })
+            }
 
             const url = '/books/' + this.props.book.id + '/borrow/check-out/';
             const formData = new FormData();
@@ -309,9 +326,7 @@ class BookCheckoutModal extends React.Component {
                     }
                 })
                 .then(handleData.bind(this))
-                .catch(function (error) {
-                    console.log(error);
-                });
+                .catch(handleError.bind(this));
         }
     }
 
@@ -352,11 +367,22 @@ class BookCheckoutModal extends React.Component {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body p-0">
-                            {this.state.borrowing === null ? (
-                                <div className={'d-block position-fixed top-50 start-50 ' + (!this.state.loadingData ? ' d-none': '')}>
+                            {this.state.error ? (
+                                <div className="row m-3">
+                                    <div className="col">
+                                        <div class="alert alert-danger" role="alert">
+                                            {this.state.error_message}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <span />
+                            )}
+                            {this.state.borrowing !== null ? (
+                                <div className={'d-block top-50 start-50 m-5'}>
                                     <div className="row align-items-center justify-content-center">
-                                        <div className="spinner-border text-success" role="status">
-                                            <i className="bi-tick text-success"></i>
+                                        <div className="text-center">
+                                            <i className="bi-check-circle text-success fs-3"></i>
                                         </div>
                                         <div className="text-center mt-3">
                                             Book Checked Out Successfully!
@@ -382,8 +408,157 @@ class BookCheckoutModal extends React.Component {
                              )}
                         </div>
                         <div className="modal-footer">
-                            <button type="submit" className="btn btn-warning">
+                            <button type="button" className="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" className="btn btn-warning" disabled={!book.available}>
                                 <span className={"spinner-grow spinner-grow-sm " + (this.state.loading ? "" : "d-none")} role="status" aria-hidden="true"></span> Checkout Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )
+    }
+}
+
+class BookCheckinModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loading: false,
+            email: '',
+            name: '',
+            borrowing: null
+        };
+    }
+
+    onSubmit(e) {
+        e.preventDefault();
+
+        if (this.props.book.id !== null){
+            this.setState({
+                loading: true
+            });
+
+            const url = '/books/' + this.props.book.id + '/borrow/check-in/';
+            const formData = new FormData();
+            
+            formData.append('name', this.state.name);
+            formData.append('email', this.state.email);
+            
+            axios
+                .post(url, formData, {
+                    headers: {
+                      'Content-Type': 'multipart/form-data'
+                    }
+                })
+                .then(handleData.bind(this))
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+    }
+
+    componentDidMount() {
+        if (this.props.book !== null) {
+            this.setState({
+                loading: true
+            });
+            
+            var handleData = function (response) {
+                if (response.data !== undefined && response.data.success) {
+                    var data = response.data.data;
+    
+                    this.setState({
+                        loading: false,
+                        borrowing: data
+                    })
+                    
+                    if (this.props.loadData !== undefined) {
+                        this.props.loadData();
+                    }
+                }
+            }
+
+            axios
+                .get('/books/' + this.props.book.id + '/borrow/status/')
+                .then(handleData.bind(this))
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+    }
+
+    render() {
+        var book = this.props.book || {
+            id: null,
+            title: '',
+            kind: '',
+            rating: '',
+            rating_icons: [],
+            summary: '',
+            cover: '',
+            author: '',
+            featured: '',
+            created_at: '',
+            updated_at: ''
+        };
+
+        var setName = function(name) {
+            this.setState({
+                name: name
+            })
+        }.bind(this);
+        var setEmail = function(email) {
+            this.setState({
+                email: email
+            })
+        }.bind(this);
+
+        return (
+            <div className="modal fade" id="bookCheckinModal" tabIndex="-1" aria-labelledby="bookCheckinModal" aria-hidden="true">
+                <div className="modal-dialog">
+                    <form className="modal-content" onSubmit={this.onSubmit.bind(this)}>
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="bookCheckinModalLabel">
+                                {book.title}
+                            </h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body p-0">
+                            {this.state.borrowing !== null ? (
+                                <div className={'d-block top-50 start-50 m-5'}>
+                                    <div className="row align-items-center justify-content-center">
+                                        <div className="text-center">
+                                            <i className="bi-check-circle text-success fs-3"></i>
+                                        </div>
+                                        <div className="text-center mt-3">
+                                            Book returned successfully!
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="w-auto float-start">
+                                        <BookCard book={book} showRating={false} embedded={true} />
+                                    </div>
+                                    <div className="w-60 float-start py-4">
+                                        <div className="">
+                                            <p className="fs-5">
+                                                RENTAL CHARGES
+                                            </p>
+                                            <p className="fs-2">
+                                                {book.available}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                             )}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" className={"btn btn-success " + (this.state.borrowing !== null ? "d-none": "")}>
+                                <span className={"spinner-grow spinner-grow-sm " + (this.state.loading ? "" : "d-none")} role="status" aria-hidden="true"></span> Return Book
                             </button>
                         </div>
                     </form>
@@ -449,9 +624,15 @@ class BookListItem extends React.Component {
                     {book.available ? "Available" : "Borrowed"}
                 </div>
                 <div className="w-15 d-flex align-items-center">
-                    <button className="btn btn-warning btn-sm shadow-sm" onClick={this.onClick.bind(this)} data-bs-toggle="modal" data-bs-target="#bookCheckoutModal">
-                        Borrow Book
-                    </button>
+                    {!book.available ? (
+                        <button className={"btn btn-success btn-sm shadow-sm"} onClick={this.onClick.bind(this)} data-bs-toggle="modal" data-bs-target="#bookCheckinModal">
+                            Return Book
+                        </button>
+                    ): (
+                        <button className={"btn btn-warning btn-sm shadow-sm"} onClick={this.onClick.bind(this)} data-bs-toggle="modal" data-bs-target="#bookCheckoutModal">
+                            Borrow Book
+                        </button>
+                    )}
                 </div>
             </div>
         )
@@ -612,6 +793,10 @@ class App extends React.Component {
                     currentBook={this.currentBook.bind(this)}/>
                 <BookCheckoutModal 
                     book={this.state.currentBook} 
+                    currentBook={this.currentBook.bind(this)}/>
+                <BookCheckinModal 
+                    book={this.state.currentBook}
+                    loadData={this.loadData.bind(this)}
                     currentBook={this.currentBook.bind(this)}/>
             </div>
         )

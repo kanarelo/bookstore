@@ -18,6 +18,7 @@ urlpatterns = [
     path('books/<int:book_id>/', views.books, name='view_book'),
 
     # process
+    path('books/<int:book_id>/borrow/status/', views.borrow_status, name='borrow_status'),
     path('books/<int:book_id>/borrow/check-out/', views.borrow_checkout, name='borrow_checkout'),
     path('books/<int:book_id>/borrow/check-in/', views.borrow_checkin, name='borrow_checkin'),
 ]
