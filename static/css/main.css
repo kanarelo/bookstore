@@ -11,12 +11,16 @@ body{
 
 .book-card {
     border: 12.5px solid #ffffff;
+    max-width: 166px;
+}
+.featured-books-cards .book-card {
+    width: 14%;
 }
 .book-card .book-cover {
-    max-height: 210px;
+    height: 210px;
 }
 .book-list .book-cover {
-    max-height: 55px;
+    height: 55px;
 }
 .book-list .book-author {
     color: rgba(67, 66, 72);
@@ -68,8 +72,11 @@ body{
 .w-30 {
     width: 30% !important;
 }
+.w-60 {
+    width: 60% !important;
+}
 
-.book-card:hover, 
+.featured-books-cards .book-card:hover, 
 .book-list-item:hover {
     cursor: pointer;
 }

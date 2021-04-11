@@ -4,6 +4,13 @@ from django.utils import timezone
 
 class Customer(models.Model):
     name = models.CharField(max_length=50)
+    email = models.EmailField()
+
+    def as_dict(self):
+        return {
+            'name': self.name
+            'email': self.email
+        }
 
 
 class Book(models.Model):
@@ -20,16 +27,21 @@ class Book(models.Model):
     kind = models.CharField(max_length=10, choices=KINDS)
 
     internal_rating = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    featured = models.BooleanField(default=False)
+
+    # borrow info
+    available = models.BooleanField(default=True)
+    last_borrow_date = models.DateTimeField(null=True)
+    last_return_date = models.DateTimeField(null=True)
 
     #meta
     cover = models.ImageField(upload_to='books/covers', null=True)
     author = models.CharField(max_length=100, null=True)
-
-    featured = models.BooleanField(default=False)
+    summary = models.CharField(max_length=600, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
-    
+
     def __str__(self):
         return self.title
 
@@ -65,10 +77,14 @@ class Book(models.Model):
         return {
             'title': self.title,
             'kind': self.get_kind_display(),
-            'rating': self.internal_rating or self.rating or 0,
-            'rating_icons': self.rating_icons,
             'cover': self.cover.url,
             'author': self.author,
+            'rating': self.internal_rating or self.rating or 0,
+            'rating_icons': self.rating_icons,
+            'summary': self.summary,
+            'available': self.available,
+            'last_borrow_date': self.last_borrow_date.isoformat() if self.last_borrow_date else None,
+            'last_return_date': self.last_return_date.isoformat() if self.last_return_date else None,
             'featured': self.featured,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
@@ -142,8 +158,8 @@ class Borrowing(models.Model):
 
     def as_dict(self):
         return {
-            'book_id': self.book.id,
-            'customer_id': self.customer.id,
+            'book': self.book.as_dict(),
+            'customer': self.customer.as_dict(),
             'date_borrowed': self.date_borrowed.isoformat() if self.date_borrowed else None,
             'date_returned': self.date_returned.isoformat() if self.date_returned else None,
             'currency': 'USD $',
@@ -160,24 +176,32 @@ class Borrowing(models.Model):
                 customer=customer,
                 date_borrowed=timezone.now())
 
+            book.available = False
+            book.last_borrow_date = timezone.now()
+            book.save()
+
             return borrowing
     
     @staticmethod
-    def checkin_book(book, customer, comments):
+    def checkin_book(book, comments=""):
         with transaction.atomic():
             borrowing = Borrowing.objects.get(
                 book=book,
-                customer=customer,
                 date_returned__isnull=True)
-            borrowing.comments = f"{borrowing.comments or ''}\n{comments}"
             
             # calculate borrow cost
-            borrowing.date_returned = timezone.now()
             days_borrowed = (borrowing.date_returned - borrowing.date_borrowed).days
             borrowing.borrow_charge = book.get_rental_cost(days_borrowed)
-
+            
+            borrowing.date_returned = timezone.now()
+            borrowing.comments = borrowing.comments
+            
+            book.available = True
+            book.last_return_date = timezone.now()
+            
             # save to db
             borrowing.save()
+            book.save()
 
             return borrowing
 

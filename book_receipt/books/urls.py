@@ -6,7 +6,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     
     path('library/', views.library, name='library'),
-    path('library.json', views.library_data, name='library'),
+    path('library.json', views.library_data, name='library_json'),
 
     path('rentals/', views.rentals, name='rentals'),
 
@@ -18,6 +18,6 @@ urlpatterns = [
     path('books/<int:book_id>/', views.books, name='view_book'),
 
     # process
-    path('books/<int:book_id>/borrow/check_in', views.borrow_checkin, name='borrow_checkin'),
-    path('books/<int:book_id>/borrow/check_in', views.borrow_checkout, name='borrow_checkout'),
+    path('books/<int:book_id>/borrow/check-in/', views.borrow_checkin, name='borrow_checkin'),
+    path('books/<int:book_id>/borrow/check-out/', views.borrow_checkout, name='borrow_checkout')
 ]

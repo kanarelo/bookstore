@@ -4,8 +4,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .forms import BookForm
-from .models import Book, Borrowing
+from .forms import BookForm, CustomerForm
+from .models import Book, Borrowing, Customer
 
 
 def index(request):
@@ -54,16 +54,37 @@ def books(request, book_id=None, create=False):
 
 @require_POST
 def borrow_checkout(request, book_id):
+    response = {
+        'success': False
+    }
     book = get_object_or_404(Book, id=book_id)
 
-    borrowing = Borrowing.checkout_book(book, customer)
+    form = CustomerForm(request.POST)
+    if form.is_valid():
+        customer = form.save()
+
+        borrowing = Borrowing.checkout_book(book, customer)
+        response['success'] = True
+    else:
+        response['errors'] = form.errors
+
+    return JsonResponse(response)
 
 
 @require_POST
 def borrow_checkin(request, book_id):
+    response = {
+        'success': False
+    }
     book = get_object_or_404(Book, id=book_id)
 
-    borrowing = Borrowing.checkin_book(book, customer)
+    borrowing = Borrowing.checkin_book(book, comments=)
+        response['success'] = True
+        response['data'] = borrowing.as_dict()
+    else:
+        response['errors'] = form.errors
+
+    return JsonResponse(response)
 
 
 def library_data(request):
