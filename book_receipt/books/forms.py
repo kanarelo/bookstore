@@ -24,8 +24,3 @@ class CustomerForm(forms.ModelForm):
 class CheckinForm(forms.Form):
     comments = forms.CharField(max_length=400)
     rating = forms.DecimalField(max_digits=6, decimal_places=2)
-
-
-class CheckoutForm(forms.Form):
-    comments = forms.CharField(max_length=400)
-    rating = forms.DecimalField(max_digits=6, decimal_places=2)

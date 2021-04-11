@@ -4,11 +4,11 @@ from django.utils import timezone
 
 class Customer(models.Model):
     name = models.CharField(max_length=50)
-    email = models.EmailField()
+    email = models.EmailField(null=True)
 
     def as_dict(self):
         return {
-            'name': self.name
+            'name': self.name,
             'email': self.email
         }
 
@@ -75,6 +75,7 @@ class Book(models.Model):
 
     def as_dict(self):
         return {
+            'id': self.pk,
             'title': self.title,
             'kind': self.get_kind_display(),
             'cover': self.cover.url,

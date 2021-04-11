@@ -1,3 +1,5 @@
+const e = React.createElement;
+
 class BookRating extends React.Component {
     constructor(props) {
         super(props);
@@ -49,8 +51,10 @@ class BookCard extends React.Component {
     onClick(e) {
         e.preventDefault();
 
-        if (this.props.currentBook !== undefined) {
-            this.props.currentBook(this.props.book);
+        if (this.props.embedded === false) {
+            if (this.props.currentBook !== undefined) {
+                this.props.currentBook(this.props.book);
+            }
         }
     }
 
@@ -65,18 +69,9 @@ class BookCard extends React.Component {
                 shadowClass = "";
             }
         }
-        
 
-        return (
-            <div 
-                className={"card book-card m-2 " + shadowClass} 
-                onMouseOver={this.onMouseOver.bind(this)} 
-                onMouseOut={this.onMouseOut.bind(this)}
-                onClick={this.onClick.bind(this)}
-
-                data-bs-toggle="modal" 
-                data-bs-target="#viewBookModal"
-            >
+        var content = (
+            <React.Fragment>
                 <img src={ book.cover } className="card-img-top book-cover" />
                 <div className="card-body px-0 py-0">
                     <p className="card-title book-title mt-3 mb-1">{ book.title }</p>
@@ -87,8 +82,22 @@ class BookCard extends React.Component {
                         <div/>
                     )}
                 </div>
-            </div>
-        )
+            </React.Fragment>
+        );
+
+        var props = {
+            className: ("card book-card m-2 " + shadowClass),
+            onMouseOver: this.onMouseOver.bind(this),
+            onMouseOut: this.onMouseOut.bind(this),
+            onClick: this.onClick.bind(this)
+        }
+
+        if (this.props.embedded === false) {
+            props['data-bs-toggle'] = "modal";
+            props['data-bs-target'] = "#viewBookModal";
+        }
+
+        return e('div', props, content);
     }
 }
 
@@ -135,7 +144,9 @@ class FeaturedBooks extends React.Component {
                     <div className="col p-2">
                         <div className="d-flex flex-row justify-content-start featured-books-cards">
                             {books.map(function(book, index) {
-                                return <BookCard book={book} key={index} embedded={false} currentBook={this.props.currentBook}/>
+                                return (
+                                    <BookCard book={book} key={index} embedded={false} currentBook={this.props.currentBook}/>
+                                );
                             }.bind(this))}
                         </div>
                     </div>
@@ -199,6 +210,7 @@ class ViewBookModal extends React.Component {
         super(props);
 
         this.state = {};
+        this.modalRef = React.createRef();
     }
 
     render() {
@@ -214,6 +226,7 @@ class ViewBookModal extends React.Component {
             created_at: '',
             updated_at: ''
         };
+
 
         return (
             <div className="modal fade" id="viewBookModal" tabIndex="-1" aria-labelledby="viewBookModal" aria-hidden="true">
@@ -237,7 +250,13 @@ class ViewBookModal extends React.Component {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-warning">Borrow Book</button>
+                            <button type="button" 
+                                className="btn btn-warning" 
+                                data-bs-dismiss="modal" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#bookCheckoutModal">
+                                    Borrow Book
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -246,15 +265,59 @@ class ViewBookModal extends React.Component {
     }
 }
 
-class BorrowBookModal extends React.Component {
+class BookCheckoutModal extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            loading: false,
+            email: '',
+            name: '',
+            borrowing: null
+        };
+    }
+
+    checkoutBook(e) {
+        e.preventDefault();
+
+        if (this.props.book.id !== null){
+            this.setState({
+                loading: true
+            });
+
+            var handleData = function (response) {
+                if (response.data !== undefined && response.data.success) {
+                    var data = response.data.data;
+    
+                    this.setState({
+                        loading: false,
+                        borrowing: data
+                    })
+                }
+            }
+
+            const url = '/books/' + this.props.book.id + '/borrow/check-out/';
+            const formData = new FormData();
+            
+            formData.append('name', this.state.name);
+            formData.append('email', this.state.email);
+            
+            axios
+                .post(url, formData, {
+                    headers: {
+                      'Content-Type': 'multipart/form-data'
+                    }
+                })
+                .then(handleData.bind(this))
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
     }
 
     render() {
         var book = this.props.book || {
+            id: null,
             title: '',
             kind: '',
             rating: '',
@@ -267,40 +330,63 @@ class BorrowBookModal extends React.Component {
             updated_at: ''
         };
 
+        var setName = function(name) {
+            this.setState({
+                name: name
+            })
+        }.bind(this);
+        var setEmail = function(email) {
+            this.setState({
+                email: email
+            })
+        }.bind(this);
+
         return (
-            <div className="modal fade" id="borrowBookModal" tabIndex="-1" aria-labelledby="borrowBookModal" aria-hidden="true">
+            <div className="modal fade" id="bookCheckoutModal" tabIndex="-1" aria-labelledby="bookCheckoutModal" aria-hidden="true">
                 <div className="modal-dialog">
-                    <div className="modal-content">
+                    <form className="modal-content" onSubmit={this.checkoutBook.bind(this)}>
                         <div className="modal-header">
-                            <h5 className="modal-title" id="borrowBookModalLabel">
-                                Borrow Book: {book.title}
+                            <h5 className="modal-title" id="bookCheckoutModalLabel">
+                                {book.title}
                             </h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body p-0">
-                            <div>
-                                <div className="w-auto float-start">
-                                    <BookCard book={book} showRating={false} embedded={true} />
+                            {this.state.borrowing === null ? (
+                                <div className={'d-block position-fixed top-50 start-50 ' + (!this.state.loadingData ? ' d-none': '')}>
+                                    <div className="row align-items-center justify-content-center">
+                                        <div className="spinner-border text-success" role="status">
+                                            <i className="bi-tick text-success"></i>
+                                        </div>
+                                        <div className="text-center mt-3">
+                                            Book Checked Out Successfully!
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="w-60 float-start py-4">
-                                    <form>
+                            ) : (
+                                <div>
+                                    <div className="w-auto float-start">
+                                        <BookCard book={book} showRating={false} embedded={true} />
+                                    </div>
+                                    <div className="w-60 float-start py-4">
                                         <div className="form-floating mb-3">
-                                            <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
-                                            <label htmlFor="floatingInput">Customer Name</label>
+                                            <input required onChange={function(event) { setName(event.target.value) }} type="text" className="form-control" id="customerName" placeholder="name@example.com" />
+                                            <label htmlFor="customerName">Customer Name</label>
                                         </div>
                                         <div className="form-floating mb-3">
-                                            <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
-                                            <label htmlFor="floatingInput">Customer E-mail</label>
+                                            <input required onChange={function(event) { setEmail(event.target.value) }} type="email" className="form-control" id="customerEmail" placeholder="name@example.com" />
+                                            <label htmlFor="customerEmail">Customer E-mail</label>
                                         </div>
-                                    </form>
+                                    </div>
                                 </div>
-                            </div>
+                             )}
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-warning">Checkout Book</button>
+                            <button type="submit" className="btn btn-warning">
+                                <span className={"spinner-grow spinner-grow-sm " + (this.state.loading ? "" : "d-none")} role="status" aria-hidden="true"></span> Checkout Book
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         )
@@ -363,7 +449,7 @@ class BookListItem extends React.Component {
                     {book.available ? "Available" : "Borrowed"}
                 </div>
                 <div className="w-15 d-flex align-items-center">
-                    <button className="btn btn-warning btn-sm shadow-sm" onClick={this.onClick.bind(this)} data-bs-toggle="modal" data-bs-target="#borrowBookModal">
+                    <button className="btn btn-warning btn-sm shadow-sm" onClick={this.onClick.bind(this)} data-bs-toggle="modal" data-bs-target="#bookCheckoutModal">
                         Borrow Book
                     </button>
                 </div>
@@ -433,6 +519,10 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+        this.loadData();
+    }
+
+    loadData(){
         var handleData = function (response) {
             if (response.data !== undefined && response.data.success) {
                 var data = response.data.response;
@@ -517,8 +607,12 @@ class App extends React.Component {
                         </div>
                     </div>
                 </div>
-                <ViewBookModal book={this.state.currentBook} currentBook={this.currentBook.bind(this)}/>
-                <BorrowBookModal book={this.state.currentBook} currentBook={this.currentBook.bind(this)}/>
+                <ViewBookModal 
+                    book={this.state.currentBook} 
+                    currentBook={this.currentBook.bind(this)}/>
+                <BookCheckoutModal 
+                    book={this.state.currentBook} 
+                    currentBook={this.currentBook.bind(this)}/>
             </div>
         )
     }

@@ -2,9 +2,10 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .forms import BookForm, CustomerForm
+from .forms import BookForm, CustomerForm, CheckinForm
 from .models import Book, Borrowing, Customer
 
 
@@ -15,6 +16,7 @@ def index(request):
 def books(request, book_id=None, create=False):
     response = {}
     success = False
+    status = 200
 
     if request.method == "GET":
         if book_id is not None:
@@ -44,47 +46,67 @@ def books(request, book_id=None, create=False):
             
             success = True
         else:
+            status = 400
             response['errors'] = form.errors
             
     return JsonResponse({
         'success': success,
         'response': response
-    })
+    }, status=status)
 
 
+@csrf_exempt
 @require_POST
 def borrow_checkout(request, book_id):
     response = {
         'success': False
     }
+    status = 200
     book = get_object_or_404(Book, id=book_id)
 
-    form = CustomerForm(request.POST)
-    if form.is_valid():
-        customer = form.save()
-
-        borrowing = Borrowing.checkout_book(book, customer)
-        response['success'] = True
+    if not book.available:
+        response['message'] = 'Cannot check out Book. The Book has already been borrowed'
     else:
-        response['errors'] = form.errors
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            customer = form.save()
 
-    return JsonResponse(response)
+            borrowing = Borrowing.checkout_book(book, customer)
+            response['success'] = True
+            response['data'] = borrowing.as_dict()
+        else:
+            status = 400
+            response['errors'] = form.errors
+
+    return JsonResponse(response, status=status)
 
 
+@csrf_exempt
 @require_POST
 def borrow_checkin(request, book_id):
     response = {
         'success': False
     }
+    status = 200
     book = get_object_or_404(Book, id=book_id)
 
-    borrowing = Borrowing.checkin_book(book, comments=)
-        response['success'] = True
-        response['data'] = borrowing.as_dict()
+    if book.available:
+        response['message'] = 'Cannot check in Book. The Book is available and not yet borrowed.'
     else:
-        response['errors'] = form.errors
+        form = CheckinForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            borrowing = Borrowing.checkin_book(
+                book, 
+                comments=data.get('comments'))
 
-    return JsonResponse(response)
+            response['success'] = True
+            response['data'] = borrowing.as_dict()
+        else:
+            status = 400
+            response['errors'] = form.errors
+
+    return JsonResponse(response, status=status) 
 
 
 def library_data(request):
@@ -112,6 +134,7 @@ def library_data(request):
             ]
         }
     })
+
 
 def library(request):
     recommended_books = Book.objects\
