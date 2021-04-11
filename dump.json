@@ -1,0 +1,163 @@
+[
+{
+  "model": "books.book",
+  "pk": 7,
+  "fields": {
+    "name": "The Pixie",
+    "kind": "fiction",
+    "internal_rating": "4.30",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T19:10:23.344Z",
+    "last_return_date": null,
+    "cover": "books/covers/thepixie.jpeg",
+    "author": "Menelaos Brontes",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T19:10:23.344Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 8,
+  "fields": {
+    "name": "The Girl in Red",
+    "kind": "novel",
+    "internal_rating": "4.50",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T16:48:48.590Z",
+    "last_return_date": null,
+    "cover": "books/covers/girlinred_sePlgq7.jpeg",
+    "author": "Christina Henry",
+    "summary": "The Girl in Red by Christina Henry is the latest addition in her gritty fairy tale retellings. They aren’t part of a connected series, but Henry has done retellings of Alice in Wonderland, The Little Mermaid, and Peter Pan. This one retells Little Red Riding Hood where a young woman tries to get to her grandmother’s house following an outbreak of deadly pandemic.  It’s dark, character driven, and full of fucked up-ness in the best way. However, Red is the focus and if you’re the type of reader who wants to know all the answers, you might be left disappointed.",
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T16:48:48.590Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 9,
+  "fields": {
+    "name": "The Maker of Swans",
+    "kind": "novel",
+    "internal_rating": "4.50",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T16:43:34.325Z",
+    "last_return_date": null,
+    "cover": "books/covers/makerofswans.jpeg",
+    "author": "Paraic O'Donnell",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T16:43:34.325Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 10,
+  "fields": {
+    "name": "The Mermaid",
+    "kind": "fiction",
+    "internal_rating": "4.50",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T16:39:58.038Z",
+    "last_return_date": null,
+    "cover": "books/covers/themermaid.jpeg",
+    "author": "Christina Henry",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T16:39:58.038Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 11,
+  "fields": {
+    "name": "Dog Flowers",
+    "kind": "novel",
+    "internal_rating": "4.00",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T19:15:42.528Z",
+    "last_return_date": null,
+    "cover": "books/covers/dogflowers.jpeg",
+    "author": "Daniel Geller",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T19:15:42.528Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 12,
+  "fields": {
+    "name": "Man Tiger",
+    "kind": "fiction",
+    "internal_rating": "3.00",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T16:36:29.415Z",
+    "last_return_date": null,
+    "cover": "books/covers/mantiger.jpeg",
+    "author": "Eka Kurniawan",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T16:36:29.415Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 13,
+  "fields": {
+    "name": "Stay Up with Hugo Best",
+    "kind": "novel",
+    "internal_rating": "4.50",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T15:52:36.560Z",
+    "last_return_date": null,
+    "cover": "books/covers/stayuphugo.jpeg",
+    "author": "Erin Somers",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T15:52:36.560Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 14,
+  "fields": {
+    "name": "The Monk Who Sold His Ferrari",
+    "kind": "novel",
+    "internal_rating": "4.50",
+    "featured": false,
+    "available": true,
+    "last_borrow_date": null,
+    "last_return_date": null,
+    "cover": "books/covers/soldhisferrari.jpeg",
+    "author": "Robin Sharma",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-10T08:06:44.835Z"
+  }
+},
+{
+  "model": "books.book",
+  "pk": 15,
+  "fields": {
+    "name": "Abra Cadabra",
+    "kind": "fiction",
+    "internal_rating": "3.60",
+    "featured": true,
+    "available": true,
+    "last_borrow_date": "2021-04-11T19:14:18.577Z",
+    "last_return_date": null,
+    "cover": "books/covers/abracadabra.jpeg",
+    "author": "Geean Mr",
+    "summary": null,
+    "created_at": "2021-04-10T08:06:44.826Z",
+    "updated_at": "2021-04-11T19:14:18.577Z"
+  }
+}]
