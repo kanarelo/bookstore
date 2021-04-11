@@ -78,7 +78,7 @@ class Book(models.Model):
             'id': self.pk,
             'title': self.title,
             'kind': self.get_kind_display(),
-            'cover': self.cover.url,
+            'cover': self.cover.url if self.cover else None,
             'author': self.author,
             'rating': self.internal_rating or self.rating or 0,
             'rating_icons': self.rating_icons,
