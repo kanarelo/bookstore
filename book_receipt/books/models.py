@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.utils import timezone
 
+
 class Customer(models.Model):
     name = models.CharField(max_length=50)
 
@@ -18,6 +19,9 @@ class Book(models.Model):
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=10, choices=KINDS)
 
+    @property
+    def title(self):
+        return self.name
 
     def get_rental_cost(self, days_borrowed):
         if days_borrowed == 0:
@@ -105,3 +109,4 @@ class Borrowing(models.Model):
             borrowing.save()
 
             return borrowing
+
