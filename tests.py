@@ -8,16 +8,38 @@ class BooksTestCase(unittest.TestCase):
     def setUp(self):
         self.customer = Customer(
             name="Customer #1")
-        self.book = Book(
-            name="Fundamentals of Accounting",
-            kind="regular")
 
         self.days_borrowed = 10
 
-    def test_per_day_rental_charge_is_a_dollar(self):
-        charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
 
-        self.assertEquals(charge, 10)
+    def test_regular_book_total_rental_charge(self):
+        self.book = Book(
+            name="Fundamentals of Accounting",
+            kind=Book.REGULAR)
+
+        charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
+        self.assertEqual(charge, 15)
+
+    def test_fiction_book_total_rental_charge(self):
+        self.customer = Customer(
+            name="Customer #1")
+        self.book = Book(
+            name="Wolf Hall",
+            kind=Book.FICTION)
+
+        charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
+        self.assertEqual(charge, 30)
+
+    
+    def test_novel_total_rental_charge(self):
+        self.customer = Customer(
+            name="Customer #1")
+        self.book = Book(
+            name="Lord of Flies",
+            kind=Book.NOVEL)
+
+        charge = calculate_book_rental_charge(self.book, days_borrowed=self.days_borrowed)
+        self.assertEqual(charge, 15)
 
     
 if __name__ == '__main__':
